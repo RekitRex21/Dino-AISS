@@ -8,6 +8,8 @@
 
 Dino-AISS is a Rust-based security scanner designed specifically for AI assistants following the OpenClaw personal assistant security model.
 
+**Note**: The example scan outputs in this README are for demonstration purposes only - they do not reflect any actual configuration.
+
 ## Philosophy
 
 - **Personal Agent Focus**: Built for single-user deployments, not multi-tenant systems
