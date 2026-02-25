@@ -1,3 +1,6 @@
+#![allow(unused_variables)]
+#![allow(dead_code)]
+
 //! Dino-AISS - AI Assistant Security Scanner
 //! 
 //! A security scanner designed specifically for AI assistants following
@@ -11,13 +14,14 @@ mod fixer;
 
 use std::path::Path;
 use std::time::Instant;
+use std::fs;
 use clap::{Parser, ValueEnum};
 use colored::*;
 
 use crate::config::OpenClawConfig;
 use crate::models::{ScanResult, Severity};
 use crate::scanner::get_all_scanners;
-use crate::fixer::{generate_fixes, apply_fixes, preview_fixes};
+use crate::fixer::generate_fixes;
 
 #[derive(Parser, Debug)]
 #[command(name = "dino-aiss")]
@@ -466,8 +470,37 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("{}. {}", i + 1, suggestion);
             }
             
+            // Generate safe output files
+            let timestamp = chrono::Local::now().format("%Y%m%d-%H%M%S");
+            let fixed_path = format!("{}.fixed", args.config);
+            let backup_path = format!("{}.bak-{}", args.config, timestamp);
+            
+            println!("\n[ Safe Fix Application ]");
+            println!("Would create:");
+            println!("  - Backup: {}", backup_path);
+            println!("  - Fixed:  {}", fixed_path);
+            
+            // Actually apply fixes (safe mode - creates .fixed file)
+            let fixes = crate::fixer::generate_fixes(&result.findings);
+            if !fixes.is_empty() {
+                match crate::fixer::apply_fixes(&args.config, &fixes, true) { // dry-run
+                    Ok(fixed_content) => {
+                        // Write to .fixed file
+                        if let Err(e) = fs::write(&fixed_path, &fixed_content) {
+                            eprintln!("Failed to write fixed file: {}", e);
+                        } else {
+                            println!("\n[OK] Fixed config written to: {}", fixed_path);
+                            println!("     Review the changes, then rename to apply.");
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("Fix generation failed: {}", e);
+                    }
+                }
+            }
+            
             if !args.force {
-                println!("\nRun with --force to skip confirmation");
+                println!("\nRun with --force to apply changes directly (creates timestamped backup)");
             }
         }
     }

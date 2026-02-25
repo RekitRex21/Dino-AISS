@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! Scanner Base Trait
 
 use crate::config::OpenClawConfig;

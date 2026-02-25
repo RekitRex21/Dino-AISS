@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
 //! Auto-Remediation Module
 //! 
 //! Handles automatic fixing of security issues with backup and confirmation
@@ -11,6 +14,7 @@ pub struct ConfigFix {
     pub path: String,
     pub key: String,
     pub value: serde_json::Value,
+    #[allow(dead_code)]
     pub description: String,
 }
 
@@ -175,6 +179,7 @@ fn apply_fix_to_value(config: &mut serde_json::Value, path: &str, key: &str, val
 }
 
 /// Preview what fixes would do without applying
+#[allow(dead_code)]
 pub fn preview_fixes(findings: &[crate::models::Finding]) -> String {
     let fixes = generate_fixes(findings);
     

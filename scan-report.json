@@ -1,0 +1,129 @@
+{
+  "findings": [
+    {
+      "id": "sandbox.mode_off",
+      "module": "sandbox",
+      "severity": "critical",
+      "title": "Sandbox Mode Disabled",
+      "description": "Sandbox mode is disabled, tools run directly on host",
+      "impact": "Tool execution can access and modify the host system",
+      "remediation": "Enable sandbox mode: agents.defaults.sandbox.mode: 'docker'",
+      "config_path": "agents.defaults.sandbox.mode",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "tools.web_fetch_no_ssrf",
+      "module": "tools",
+      "severity": "medium",
+      "title": "Web Fetch SSRF Protection Not Strict",
+      "description": "web_fetch ssrfPolicy is 'default'",
+      "impact": "May allow access to internal network resources",
+      "remediation": "Set tools.webFetch.ssrfPolicy: 'strict'",
+      "config_path": "tools.webFetch.ssrfPolicy",
+      "openclaw_aligned": true,
+      "cve": "CVE-2026-26322"
+    },
+    {
+      "id": "tools.web_search_no_ssrf",
+      "module": "tools",
+      "severity": "medium",
+      "title": "Web Search SSRF Protection Not Strict",
+      "description": "web_search ssrfPolicy is 'default'",
+      "impact": "May allow access to internal network resources",
+      "remediation": "Set tools.webSearch.ssrfPolicy: 'strict'",
+      "config_path": "tools.webSearch.ssrfPolicy",
+      "openclaw_aligned": true,
+      "cve": "CVE-2026-26322"
+    },
+    {
+      "id": "session.dm_scope_default",
+      "module": "session",
+      "severity": "info",
+      "title": "DM Scope Not Explicitly Set",
+      "description": "session.dmScope defaults to 'main'",
+      "impact": "May expose messages to wrong context",
+      "remediation": "Set session.dmScope explicitly to 'per-channel-peer'",
+      "config_path": "session.dmScope",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "credentials.token_in_config",
+      "module": "credentials",
+      "severity": "medium",
+      "title": "Gateway Token in Configuration File",
+      "description": "Gateway token is stored directly in config file",
+      "impact": "Config file should be protected with appropriate permissions",
+      "remediation": "Ensure config file has restricted permissions (600)",
+      "config_path": "gateway.auth.token",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "credentials.potential_secret_found",
+      "module": "credentials",
+      "severity": "high",
+      "title": "Potential Secret Detected in Config",
+      "description": "Found potential secret pattern 'sk-' in configuration",
+      "impact": "Sensitive credentials may be exposed",
+      "remediation": "Review and ensure secrets are properly secured or redacted",
+      "config_path": "config",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "control_plane.gateway_not_denied",
+      "module": "control_plane",
+      "severity": "high",
+      "title": "Tool 'gateway' Not in Deny List",
+      "description": "Gateway tool - can modify config, run updates",
+      "impact": "Agent can use this powerful tool",
+      "remediation": "Add 'gateway' to tools.deny",
+      "config_path": "tools.deny",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "control_plane.cron_not_denied",
+      "module": "control_plane",
+      "severity": "high",
+      "title": "Tool 'cron' Not in Deny List",
+      "description": "Cron tool - can schedule jobs",
+      "impact": "Agent can use this powerful tool",
+      "remediation": "Add 'cron' to tools.deny",
+      "config_path": "tools.deny",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "control_plane.sessions_spawn_not_denied",
+      "module": "control_plane",
+      "severity": "high",
+      "title": "Tool 'sessions_spawn' Not in Deny List",
+      "description": "Sessions spawn - can create subagents",
+      "impact": "Agent can use this powerful tool",
+      "remediation": "Add 'sessions_spawn' to tools.deny",
+      "config_path": "tools.deny",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "control_plane.sessions_send_not_denied",
+      "module": "control_plane",
+      "severity": "high",
+      "title": "Tool 'sessions_send' Not in Deny List",
+      "description": "Sessions send - can send cross-session messages",
+      "impact": "Agent can use this powerful tool",
+      "remediation": "Add 'sessions_send' to tools.deny",
+      "config_path": "tools.deny",
+      "openclaw_aligned": true
+    },
+    {
+      "id": "injection.info",
+      "module": "prompt_injection",
+      "severity": "info",
+      "title": "Prompt Injection Detection Informational",
+      "description": "This scanner detects configuration paths that could amplify injection impact, not injection itself",
+      "impact": "Prompt injection alone is expected behavior - we only flag chains to bypass",
+      "remediation": "See docs for hardening guidance",
+      "config_path": "N/A",
+      "openclaw_aligned": true
+    }
+  ],
+  "health_score": 0,
+  "scan_time_seconds": 0.0
+}

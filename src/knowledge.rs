@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! Knowledge Base Module
 //! 
 //! Contains CVE data and mitigation mappings
@@ -106,6 +108,7 @@ impl KnowledgeBase {
     }
     
     /// Check if a version is affected
+    #[allow(dead_code)]
     pub fn is_affected(&self, cve: &str, version: &str) -> bool {
         if let Some(entry) = self.cves.get(cve) {
             // Simple check - just see if version is less than affected
@@ -119,6 +122,7 @@ impl KnowledgeBase {
 }
 
 /// Get the global knowledge base instance
+#[allow(dead_code)]
 pub fn get_knowledge_base() -> KnowledgeBase {
     KnowledgeBase::default()
 }
