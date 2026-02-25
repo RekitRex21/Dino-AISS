@@ -1,8 +1,7 @@
 //! Integration Tests for Dino-AISS
 //! Run with: cargo test --test integration
 
-use dino_aiss::config::OpenClawConfig;
-use dino_aiss::scanner::{GatewayScanner, SandboxScanner, ToolsScanner, CredentialsScanner, PluginScanner, Scanner};
+use dino_aiss::{OpenClawConfig, GatewayScanner, SandboxScanner, ToolsScanner, CredentialsScanner, PluginScanner, Scanner};
 
 #[test]
 fn test_gateway_auth_none_critical() {

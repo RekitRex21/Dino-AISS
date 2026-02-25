@@ -7,4 +7,5 @@ pub mod knowledge;
 pub mod fixer;
 
 pub use config::OpenClawConfig;
-pub use models::{Finding, ScanResult, Severity, Scanner};
+pub use models::{Finding, ScanResult, Severity};
+pub use scanner::{Scanner, get_all_scanners};
