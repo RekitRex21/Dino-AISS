@@ -2,26 +2,25 @@
 #![allow(dead_code)]
 
 //! Dino-AISS - AI Assistant Security Scanner
-//! 
+//!
 //! A security scanner designed specifically for AI assistants following
 //! the OpenClaw personal assistant security model.
 
-mod models;
 mod config;
-mod scanner;
-mod knowledge;
 mod fixer;
+mod knowledge;
+mod models;
+mod scanner;
 
-use std::path::Path;
-use std::time::Instant;
-use std::fs;
 use clap::{Parser, ValueEnum};
 use colored::*;
+use std::fs;
+use std::path::Path;
+use std::time::Instant;
 
 use crate::config::OpenClawConfig;
 use crate::models::{ScanResult, Severity};
 use crate::scanner::get_all_scanners;
-use crate::fixer::generate_fixes;
 
 #[derive(Parser, Debug)]
 #[command(name = "dino-aiss")]
@@ -47,23 +46,23 @@ struct Args {
     /// Show detailed output
     #[arg(short, long)]
     verbose: bool,
-    
+
     /// Auto-fix mode (preview changes)
     #[arg(long)]
     fix: bool,
-    
+
     /// Force fix without confirmation
     #[arg(long)]
     force: bool,
-    
+
     /// Check OpenClaw version against CVE patches (e.g., --check-version 2026.2.10)
     #[arg(long, requires = "config")]
     check_version: Option<String>,
-    
+
     /// Generate mailto: link for sharing report
     #[arg(long)]
     email: Option<String>,
-    
+
     /// Generate upgrade guide
     #[arg(long)]
     upgrade_guide: bool,
@@ -103,7 +102,8 @@ fn run_scan(args: &Args) -> Result<ScanResult, String> {
                     }
                 }
                 SeverityFilter::HighOnly => {
-                    if finding.severity == Severity::Critical || finding.severity == Severity::High {
+                    if finding.severity == Severity::Critical || finding.severity == Severity::High
+                    {
                         result.add_finding(finding);
                     }
                 }
@@ -118,18 +118,22 @@ fn run_scan(args: &Args) -> Result<ScanResult, String> {
 }
 
 fn display_console(result: &ScanResult, verbose: bool) {
-    let score_str = if result.health_score >= 80 { 
-        format!("{}/100", result.health_score).green().to_string() 
-    } else if result.health_score >= 60 { 
-        format!("{}/100", result.health_score).yellow().to_string() 
-    } else { 
-        format!("{}/100", result.health_score).red().to_string() 
+    let score_str = if result.health_score >= 80 {
+        format!("{}/100", result.health_score).green().to_string()
+    } else if result.health_score >= 60 {
+        format!("{}/100", result.health_score).yellow().to_string()
+    } else {
+        format!("{}/100", result.health_score).red().to_string()
     };
 
     println!("\n[ Scan Results ]");
     println!("Health Score: {}", score_str);
-    println!("Critical: {} | High: {} | Total: {}", 
-        result.critical_count(), result.high_count(), result.findings.len());
+    println!(
+        "Critical: {} | High: {} | Total: {}",
+        result.critical_count(),
+        result.high_count(),
+        result.findings.len()
+    );
     println!();
 
     if result.findings.is_empty() {
@@ -138,9 +142,17 @@ fn display_console(result: &ScanResult, verbose: bool) {
     }
 
     println!("[ Security Findings ]");
-    println!("{:<11} | {:<12} | {:<32} | {:<12}", 
-        "Severity", "Module", "Title", "CVE");
-    println!("{}-+-{}-+-{}-+-{}", "-".repeat(11), "-".repeat(12), "-".repeat(32), "-".repeat(12));
+    println!(
+        "{:<11} | {:<12} | {:<32} | {:<12}",
+        "Severity", "Module", "Title", "CVE"
+    );
+    println!(
+        "{}-+-{}-+-{}-+-{}",
+        "-".repeat(11),
+        "-".repeat(12),
+        "-".repeat(32),
+        "-".repeat(12)
+    );
 
     // Sort by severity
     let mut sorted = result.findings.clone();
@@ -163,24 +175,31 @@ fn display_console(result: &ScanResult, verbose: bool) {
             Severity::Low => finding.severity.as_str().blue().to_string(),
             Severity::Info => finding.severity.as_str().to_string(),
         };
-        
+
         let title = if finding.title.len() > 30 {
             format!("{}...", &finding.title[..27])
         } else {
             finding.title.clone()
         };
-        
+
         let cve = finding.cve.clone().unwrap_or_else(|| "-".to_string());
-        
-        println!("{:<11} | {:<12} | {:<32} | {:<12}", 
-            sev_str, finding.module, title, cve);
+
+        println!(
+            "{:<11} | {:<12} | {:<32} | {:<12}",
+            sev_str, finding.module, title, cve
+        );
     }
     println!();
 
     if verbose {
         println!("[ Finding Details ]");
         for (i, finding) in sorted.iter().enumerate() {
-            println!("\n{}. {} ({})", i + 1, finding.title, finding.severity.as_str());
+            println!(
+                "\n{}. {} ({})",
+                i + 1,
+                finding.title,
+                finding.severity.as_str()
+            );
             println!("   ID: {}", finding.id);
             println!("   Path: {}", finding.config_path);
             println!("   Description: {}", finding.description);
@@ -203,14 +222,15 @@ fn display_html(result: &ScanResult, output: &Option<String>) {
     let severity_color = |sev: &str| -> &str {
         match sev {
             "critical" => "#dc2626",
-            "high" => "#d97706", 
+            "high" => "#d97706",
             "medium" => "#0891b2",
             "low" => "#2563eb",
             _ => "#6b7280",
         }
     };
-    
-    let html = format!(r#"<!DOCTYPE html>
+
+    let html = format!(
+        r#"<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -249,15 +269,21 @@ fn display_html(result: &ScanResult, output: &Option<String>) {
         
         <h2>Findings</h2>
 "#,
-        if result.health_score >= 80 { "score-high" } else if result.health_score >= 60 { "score-medium" } else { "score-low" },
+        if result.health_score >= 80 {
+            "score-high"
+        } else if result.health_score >= 60 {
+            "score-medium"
+        } else {
+            "score-low"
+        },
         result.health_score,
         result.critical_count(),
         result.high_count(),
         result.findings.len()
     );
-    
+
     let mut html = html;
-    
+
     // Add findings
     let mut sorted = result.findings.clone();
     sorted.sort_by(|a, b| {
@@ -270,13 +296,16 @@ fn display_html(result: &ScanResult, output: &Option<String>) {
         };
         order(&a.severity).cmp(&order(&b.severity))
     });
-    
+
     for finding in sorted {
-        let cve_tag = finding.cve.as_ref()
+        let cve_tag = finding
+            .cve
+            .as_ref()
             .map(|c| format!("<span class='cve'>{}</span>", c))
             .unwrap_or_default();
-        
-        html.push_str(&format!(r#"
+
+        html.push_str(&format!(
+            r#"
         <div class="finding {}">
             <h3>{} {}</h3>
             <p><strong>Module:</strong> {}</p>
@@ -293,16 +322,17 @@ fn display_html(result: &ScanResult, output: &Option<String>) {
             finding.remediation
         ));
     }
-    
-    html.push_str(&format!(r#"
-        <div class="footer">
+
+    html.push_str(
+        r#"        <div class="footer">
             <p>Scanned by Dino-AISS v0.1.0 - AI Assistant Security Scanner</p>
             <p>Philosophy: "We scan for real exploit chains, not theoretical configs."</p>
         </div>
     </div>
 </body>
-</html>"#));
-    
+</html>"#,
+    );
+
     if let Some(path) = output {
         std::fs::write(path, &html).unwrap();
         println!("OK Results written to: {}", path);
@@ -312,7 +342,8 @@ fn display_html(result: &ScanResult, output: &Option<String>) {
 }
 
 fn display_markdown(result: &ScanResult, output: &Option<String>) {
-    let mut md = format!(r#"# Dino-AISS Security Scan Results
+    let mut md = format!(
+        r#"# Dino-AISS Security Scan Results
 
 **Health Score:** {}/100
 **Critical:** {} | **High:** {} | **Total:** {}
@@ -321,13 +352,13 @@ fn display_markdown(result: &ScanResult, output: &Option<String>) {
 
 ## Findings
 
-"#, 
+"#,
         result.health_score,
         result.critical_count(),
         result.high_count(),
         result.findings.len()
     );
-    
+
     // Sort by severity
     let mut sorted = result.findings.clone();
     sorted.sort_by(|a, b| {
@@ -340,13 +371,16 @@ fn display_markdown(result: &ScanResult, output: &Option<String>) {
         };
         order(&a.severity).cmp(&order(&b.severity))
     });
-    
+
     for finding in sorted {
-        let cve_line = finding.cve.as_ref()
+        let cve_line = finding
+            .cve
+            .as_ref()
             .map(|c| format!("\n**CVE:** {}", c))
             .unwrap_or_default();
-        
-        md.push_str(&format!(r#"### {}
+
+        md.push_str(&format!(
+            r#"### {}
 
 - **Severity:** {}
 - **Module:** {}
@@ -355,7 +389,7 @@ fn display_markdown(result: &ScanResult, output: &Option<String>) {
 - **Remediation:** {}
 
 ---
-"#, 
+"#,
             finding.title,
             finding.severity.as_str(),
             finding.module,
@@ -365,7 +399,7 @@ fn display_markdown(result: &ScanResult, output: &Option<String>) {
             finding.remediation
         ));
     }
-    
+
     if let Some(path) = output {
         std::fs::write(path, &md).unwrap();
         println!("OK Results written to: {}", path);
@@ -376,7 +410,7 @@ fn display_markdown(result: &ScanResult, output: &Option<String>) {
 
 fn generate_fix_suggestions(result: &ScanResult) -> Vec<String> {
     let mut suggestions = Vec::new();
-    
+
     for finding in &result.findings {
         let suggestion = match finding.id.as_str() {
             "sandbox.mode_off" => "Set agents.defaults.sandbox.mode to 'docker'".to_string(),
@@ -401,14 +435,15 @@ fn generate_fix_suggestions(result: &ScanResult) -> Vec<String> {
             "control_plane.sessions_send_not_denied" => "Add 'sessions_send' to tools.deny".to_string(),
             _ => format!("Review and fix: {}", finding.config_path),
         };
-        
-        suggestions.push(format!("[{}] {}: {}", 
+
+        suggestions.push(format!(
+            "[{}] {}: {}",
             finding.severity.as_str().to_uppercase(),
             finding.title,
             suggestion
         ));
     }
-    
+
     suggestions
 }
 
@@ -422,14 +457,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(version) = &args.check_version {
         println!("[ Version Check ]");
         println!("Checking version: {}\n", version);
-        
+
         // CVE version requirements
         let cve_requirements = vec![
             ("CVE-2026-26322", "2026.2.14"),
             ("CVE-2026-25593", "2026.2.15"),
             ("CVE-2026-24763", "2026.2.13"),
         ];
-        
+
         for (cve, min_version) in cve_requirements {
             println!("{}: requires >= {}", cve, min_version);
             // Simple version comparison (would need proper semver in production)
@@ -440,13 +475,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("  [{}]", "OK".green());
             }
         }
-        
+
         return Ok(());
     }
 
     print!("Loading config from: {} ... ", args.config);
     let start = Instant::now();
-    
+
     let result = match run_scan(&args) {
         Ok(r) => r,
         Err(e) => {
@@ -455,35 +490,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(1);
         }
     };
-    
+
     println!("{} ({:.2}s)", "OK".green(), start.elapsed().as_secs_f32());
 
     // Handle --fix mode
     if args.fix {
         println!("\n[ Auto-Fix Suggestions ]");
         let suggestions = generate_fix_suggestions(&result);
-        
+
         if suggestions.is_empty() {
             println!("No fixes needed!");
         } else {
             for (i, suggestion) in suggestions.iter().enumerate() {
                 println!("{}. {}", i + 1, suggestion);
             }
-            
+
             // Generate safe output files
             let timestamp = chrono::Local::now().format("%Y%m%d-%H%M%S");
             let fixed_path = format!("{}.fixed", args.config);
             let backup_path = format!("{}.bak-{}", args.config, timestamp);
-            
+
             println!("\n[ Safe Fix Application ]");
             println!("Would create:");
             println!("  - Backup: {}", backup_path);
             println!("  - Fixed:  {}", fixed_path);
-            
+
             // Actually apply fixes (safe mode - creates .fixed file)
             let fixes = crate::fixer::generate_fixes(&result.findings);
             if !fixes.is_empty() {
-                match crate::fixer::apply_fixes(&args.config, &fixes, true) { // dry-run
+                match crate::fixer::apply_fixes(&args.config, &fixes, true) {
+                    // dry-run
                     Ok(fixed_content) => {
                         // Write to .fixed file
                         if let Err(e) = fs::write(&fixed_path, &fixed_content) {
@@ -498,19 +534,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
             }
-            
+
             if !args.force {
-                println!("\nRun with --force to apply changes directly (creates timestamped backup)");
+                println!(
+                    "\nRun with --force to apply changes directly (creates timestamped backup)"
+                );
             }
         }
     }
-    
+
     // Handle --email mode (generate mailto link)
     if let Some(email) = &args.email {
         println!("\n[ Email Report ]");
-        
+
         // Generate mailto: link
-        let subject = format!("Dino-AISS Security Scan - {} findings", result.findings.len());
+        let subject = format!(
+            "Dino-AISS Security Scan - {} findings",
+            result.findings.len()
+        );
         let body = format!(
             "Dino-AISS Security Scan Results\n\
             ==============================\n\n\
@@ -527,14 +568,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             result.high_count(),
             result.findings.len()
         );
-        
+
         let mailto = format!(
             "mailto:{}?subject={}&body={}",
             email,
             urlencoding::encode(&subject),
             urlencoding::encode(&body)
         );
-        
+
         println!("To share via email, open:");
         println!("\n{}\n", mailto);
     }
@@ -553,30 +594,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else if result.high_count() > 0 {
         std::process::exit(1);
     }
-    
+
     // Handle upgrade guide
     if args.upgrade_guide {
         println!("\n[ Upgrade Guide ]\n");
-        
+
         let version = openclaw_version_from_config(&args.config);
-        
+
         println!("Current version: {}\n", version);
         println!("Recommended upgrades based on security fixes:");
-        
+
         let upgrades = vec![
-            ("2026.2.14", "SSRF vulnerability fixes, strict gatewayUrl validation"),
+            (
+                "2026.2.14",
+                "SSRF vulnerability fixes, strict gatewayUrl validation",
+            ),
             ("2026.2.15", "RCE via cliPath fix, command validation"),
-            ("2026.2.20", "Sandbox Docker improvements, PATH sanitization"),
+            (
+                "2026.2.20",
+                "Sandbox Docker improvements, PATH sanitization",
+            ),
             ("2026.2.23", "Security hardening batch, safe bins updates"),
         ];
-        
+
         for (ver, desc) in upgrades {
             let status = "[upgrade]".yellow();
             println!("  {} v{} - {}", status, ver, desc);
         }
-        
+
         println!("\nTo upgrade: npm update -g openclaw");
-        
+
         return Ok(());
     }
 

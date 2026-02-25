@@ -32,19 +32,19 @@ impl Scanner for ToolsScanner {
         let sb = &config.sandbox;
 
         // Check: exec with sandbox off - critical
-        if sb.mode.as_deref() == Some("off") {
-            if tools.exec_host.as_deref() == Some("gateway") || tools.exec_host.is_none() {
-                findings.push(Finding::new(
-                    "tools.exec_no_sandbox",
-                    self.name(),
-                    Severity::Critical,
-                    "Exec Tool Without Sandbox",
-                    "exec tool enabled with sandbox disabled - runs on host",
-                    "Command execution can modify host system",
-                    "Enable sandbox or restrict exec allowlist",
-                    "agents.defaults.sandbox.mode + tools.exec.host",
-                ));
-            }
+        if sb.mode.as_deref() == Some("off")
+            && (tools.exec_host.as_deref() == Some("gateway") || tools.exec_host.is_none())
+        {
+            findings.push(Finding::new(
+                "tools.exec_no_sandbox",
+                self.name(),
+                Severity::Critical,
+                "Exec Tool Without Sandbox",
+                "exec tool enabled with sandbox disabled - runs on host",
+                "Command execution can modify host system",
+                "Enable sandbox or restrict exec allowlist",
+                "agents.defaults.sandbox.mode + tools.exec.host",
+            ));
         }
 
         // Check: elevated mode enabled - critical

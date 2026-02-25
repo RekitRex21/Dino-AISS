@@ -134,10 +134,9 @@ impl KnowledgeBase {
 
     /// Check if a version is affected
     #[allow(dead_code)]
-    pub fn is_affected(&self, cve: &str, version: &str) -> bool {
+    pub fn is_affected(&self, cve: &str, _version: &str) -> bool {
         if let Some(entry) = self.cves.get(cve) {
-            // Simple check - just see if version is less than affected
-            if let Some(affect_ver) = entry.affected_versions.strip_prefix("<") {
+            if let Some(_affect_ver) = entry.affected_versions.strip_prefix("<") {
                 // This is a simplified check
                 return true;
             }

@@ -96,8 +96,10 @@ impl OpenClawConfig {
 
     /// Parse config from dictionary
     pub fn from_dict(data: serde_json::Value) -> Result<Self, String> {
-        let mut config = OpenClawConfig::default();
-        config.raw = data.clone();
+        let mut config = OpenClawConfig {
+            raw: data.clone(),
+            ..Default::default()
+        };
 
         // Parse gateway
         if let Some(gw) = data.get("gateway").and_then(|v| v.as_object()) {

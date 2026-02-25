@@ -84,7 +84,7 @@ impl Scanner for ChannelScanner {
                         self.name(),
                         Severity::Medium,
                         &format!("{} allowFrom Uses Wildcard", channel_name),
-                        &format!("allowFrom includes '*' - allows everyone"),
+                        "allowFrom includes '*' - allows everyone",
                         "Any user on the channel can interact with agent",
                         "Use specific user IDs instead of '*'",
                         &format!("channels.{}.allowFrom", channel_name),

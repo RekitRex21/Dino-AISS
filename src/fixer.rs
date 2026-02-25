@@ -162,7 +162,7 @@ fn apply_fix_to_value(
     let parts: Vec<&str> = path.split('.').collect();
 
     // Navigate to the right location using index-based access
-    let mut target_idx = parts.len();
+    let target_idx = parts.len();
 
     // Create nested objects if needed
     for (i, part) in parts.iter().enumerate() {
@@ -176,8 +176,6 @@ fn apply_fix_to_value(
                     );
                 }
             }
-        } else {
-            target_idx = i;
         }
     }
 

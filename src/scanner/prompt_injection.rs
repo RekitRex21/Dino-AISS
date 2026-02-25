@@ -53,37 +53,36 @@ impl Scanner for PromptInjectionScanner {
         }
 
         // Check: No workspace isolation + exec = file-based injection risk
-        if config.sandbox.workspace_access.as_deref() != Some("none") {
-            if config.tools.exec_host.is_some() {
-                findings.push(Finding::new(
-                    "injection.workspace_plus_exec",
-                    self.name(),
-                    Severity::Medium,
-                    "Workspace Access with Exec Enabled",
-                    "Sandbox has workspace access and exec is enabled",
-                    "Injected content could be executed",
-                    "Restrict workspace access or disable exec",
-                    "agents.defaults.sandbox.workspaceAccess + tools.exec.host",
-                ));
-            }
+        if config.sandbox.workspace_access.as_deref() != Some("none")
+            && config.tools.exec_host.is_some()
+        {
+            findings.push(Finding::new(
+                "injection.workspace_plus_exec",
+                self.name(),
+                Severity::Medium,
+                "Workspace Access with Exec Enabled",
+                "Sandbox has workspace access and exec is enabled",
+                "Injected content could be executed",
+                "Restrict workspace access or disable exec",
+                "agents.defaults.sandbox.workspaceAccess + tools.exec.host",
+            ));
         }
 
         // Check: sessions_spawn not denied + memory access = session hijacking path
         let empty_deny: Vec<String> = Vec::new();
         let deny_list = config.tools.deny.as_deref().unwrap_or(&empty_deny);
-        if !deny_list.contains(&"sessions_spawn".to_string()) {
-            if config.raw.get("memory").is_some() {
-                findings.push(Finding::new(
-                    "injection.sessions_spawn_plus_memory",
-                    self.name(),
-                    Severity::Medium,
-                    "Session Spawn + Memory Access",
-                    "Can spawn new sessions and has memory access",
-                    "Could inject persistent instructions into memory",
-                    "Deny sessions_spawn tool or restrict memory access",
-                    "tools.deny + memory",
-                ));
-            }
+        if !deny_list.contains(&"sessions_spawn".to_string()) && config.raw.get("memory").is_some()
+        {
+            findings.push(Finding::new(
+                "injection.sessions_spawn_plus_memory",
+                self.name(),
+                Severity::Medium,
+                "Session Spawn + Memory Access",
+                "Can spawn new sessions and has memory access",
+                "Could inject persistent instructions into memory",
+                "Deny sessions_spawn tool or restrict memory access",
+                "tools.deny + memory",
+            ));
         }
 
         // This is informational - we're NOT flagging prompt injection itself
