@@ -1,0 +1,64 @@
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "loopback",
+    "port": 18789,
+    "auth": {
+      "mode": "token",
+      "token": "this-is-a-very-secure-token-32-chars-minimum"
+    },
+    "discovery": {
+      "mdns": {
+        "mode": "minimal"
+      }
+    },
+    "controlUi": {
+      "allowedOrigins": ["http://localhost:18789"]
+    }
+  },
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "docker",
+        "workspaceAccess": "none",
+        "scope": "agent"
+      }
+    }
+  },
+  "tools": {
+    "profile": "messaging",
+    "deny": ["gateway", "cron", "sessions_spawn", "sessions_send", "group:automation", "group:runtime"],
+    "exec": {
+      "host": "sandbox",
+      "security": "ask",
+      "ask": "always",
+      "safeBins": []
+    },
+    "elevated": {
+      "enabled": false
+    },
+    "fs": {
+      "workspaceOnly": true
+    },
+    "webFetch": {
+      "ssrfPolicy": "strict"
+    },
+    "webSearch": {
+      "ssrfPolicy": "strict"
+    }
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "groups": {
+        "*": {
+          "requireMention": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "loopback",
+    "port": 18789,
+    "auth": {
+      "mode": "token",
+      "token": "short"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "off",
+        "workspaceAccess": "rw",
+        "scope": "shared"
+      }
+    }
+  },
+  "tools": {
+    "profile": "minimal",
+    "deny": ["exec"],
+    "exec": {
+      "host": "gateway",
+      "security": "deny",
+      "safeBins": ["/bin/sh", "/bin/bash"]
+    },
+    "elevated": {
+      "enabled": true
+    },
+    "fs": {
+      "workspaceOnly": false
+    },
+    "webFetch": {
+      "ssrfPolicy": "off"
+    }
+  },
+  "session": {
+    "dmScope": "main"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "open"
+    },
+    "discord": {
+      "enabled": true,
+      "groupPolicy": "open",
+      "allowFrom": ["*"]
+    }
+  }
+}
