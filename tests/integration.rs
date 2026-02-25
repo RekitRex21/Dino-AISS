@@ -1,6 +1,9 @@
 //! Integration Tests for Dino-AISS
 
-use dino_aiss::{OpenClawConfig, GatewayScanner, SandboxScanner, ToolsScanner, CredentialsScanner, PluginScanner, Scanner};
+use dino_aiss::{
+    CredentialsScanner, GatewayScanner, OpenClawConfig, PluginScanner, SandboxScanner, Scanner,
+    ToolsScanner,
+};
 
 #[test]
 fn test_gateway_auth_none_critical() {
@@ -26,7 +29,8 @@ fn test_gateway_bind_public_critical() {
 
 #[test]
 fn test_sandbox_mode_off_critical() {
-    let config_json = serde_json::json!({ "agents": { "defaults": { "sandbox": { "mode": "off" } } });
+    let config_json =
+        serde_json::json!({ "agents": { "defaults": { "sandbox": { "mode": "off" } } } });
     let config = OpenClawConfig::from_dict(config_json).unwrap();
     let scanner = SandboxScanner;
     let findings = scanner.scan(&config);
@@ -44,7 +48,8 @@ fn test_tools_elevated_enabled() {
 
 #[test]
 fn test_credentials_token_in_config() {
-    let config_json = serde_json::json!({ "gateway": { "auth": { "token": "mysecret12345678901234567890" } } });
+    let config_json =
+        serde_json::json!({ "gateway": { "auth": { "token": "mysecret12345678901234567890" } } });
     let config = OpenClawConfig::from_dict(config_json).unwrap();
     let scanner = CredentialsScanner;
     let findings = scanner.scan(&config);

@@ -1,7 +1,7 @@
 //! Channel Security Scanner
-//! 
+//!
 //! Priority: HIGH
-//! 
+//!
 //! Checks per channel (Telegram, Discord, WhatsApp, Slack, iMessage, Signal):
 //! - DM policy (pairing/allowlist/open/disabled)
 //! - Group policy (mention gating)
@@ -40,7 +40,10 @@ impl Scanner for ChannelScanner {
                     &format!("{} DM Policy 'open'", channel_name),
                     &format!("Anyone can DM the bot on {}", channel_name),
                     "Untrusted users can send messages to the agent",
-                    &format!("Set channels.{}.dmPolicy to 'pairing' or 'allowlist'", channel_name),
+                    &format!(
+                        "Set channels.{}.dmPolicy to 'pairing' or 'allowlist'",
+                        channel_name
+                    ),
                     &format!("channels.{}.dmPolicy", channel_name),
                 ));
             }

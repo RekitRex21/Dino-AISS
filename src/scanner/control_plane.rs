@@ -1,7 +1,7 @@
 //! Control Plane Tools Scanner
-//! 
+//!
 //! Priority: HIGH
-//! 
+//!
 //! Checks:
 //! - gateway tool accessible
 //! - cron tool accessible
@@ -27,16 +27,19 @@ impl Scanner for ControlPlaneScanner {
 
     fn scan(&self, config: &OpenClawConfig) -> Vec<Finding> {
         let mut findings = Vec::new();
-        
+
         // Check tools.deny for control plane tools
         let empty_deny: Vec<String> = Vec::new();
         let deny_list = config.tools.deny.as_deref().unwrap_or(&empty_deny);
-        
+
         let control_tools = vec![
             ("gateway", "Gateway tool - can modify config, run updates"),
             ("cron", "Cron tool - can schedule jobs"),
             ("sessions_spawn", "Sessions spawn - can create subagents"),
-            ("sessions_send", "Sessions send - can send cross-session messages"),
+            (
+                "sessions_send",
+                "Sessions send - can send cross-session messages",
+            ),
         ];
 
         for (tool_name, description) in control_tools {

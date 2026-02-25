@@ -1,7 +1,7 @@
 //! Node Security Scanner
-//! 
+//!
 //! Priority: HIGH
-//! 
+//!
 //! Checks:
 //! - Node pairing security
 //! - Command allowlist exposure
@@ -27,7 +27,7 @@ impl Scanner for NodeScanner {
 
     fn scan(&self, config: &OpenClawConfig) -> Vec<Finding> {
         let mut findings = Vec::new();
-        
+
         // Check for nodes configuration in raw config
         if let Some(nodes) = config.raw.get("nodes").and_then(|v| v.as_object()) {
             // Check if any node has sensitive permissions
@@ -45,8 +45,14 @@ impl Scanner for NodeScanner {
                                             &format!("nodes.{}.unrestricted_commands", node_name),
                                             self.name(),
                                             Severity::Critical,
-                                            &format!("Node '{}' Has Unrestricted Commands", node_name),
-                                            &format!("Node '{}' allows all commands (*)", node_name),
+                                            &format!(
+                                                "Node '{}' Has Unrestricted Commands",
+                                                node_name
+                                            ),
+                                            &format!(
+                                                "Node '{}' allows all commands (*)",
+                                                node_name
+                                            ),
                                             "Any command can be executed on the node",
                                             "Restrict allowCommands to specific needed commands",
                                             &format!("nodes.{}.allowCommands", node_name),
@@ -61,7 +67,7 @@ impl Scanner for NodeScanner {
                     // Check for sensitive capabilities
                     let sensitive_caps = ["camera", "screen", "contacts", "sms", "location"];
                     let mut has_sensitive = Vec::new();
-                    
+
                     if let Some(caps) = node_obj.get("capabilities").and_then(|v| v.as_array()) {
                         for cap in caps {
                             if let Some(cap_str) = cap.as_str() {
@@ -78,7 +84,11 @@ impl Scanner for NodeScanner {
                             self.name(),
                             Severity::Medium,
                             &format!("Node '{}' Has Sensitive Capabilities", node_name),
-                            &format!("Node '{}' has access to: {}", node_name, has_sensitive.join(", ")),
+                            &format!(
+                                "Node '{}' has access to: {}",
+                                node_name,
+                                has_sensitive.join(", ")
+                            ),
                             "Node can access sensitive device features",
                             "Review if these capabilities are necessary",
                             &format!("nodes.{}.capabilities", node_name),

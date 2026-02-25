@@ -1,7 +1,7 @@
 //! Sandbox & Container Security Scanner
-//! 
+//!
 //! Priority: CRITICAL
-//! 
+//!
 //! Checks:
 //! - Sandbox mode enabled/disabled
 //! - Docker config present but mode off (runtime drift)
@@ -78,7 +78,7 @@ impl Scanner for SandboxScanner {
         // Check: tools.deny missing control plane tools
         if let Some(deny_list) = &tools.deny {
             let mut missing_tools = Vec::new();
-            
+
             if !deny_list.contains(&"gateway".to_string()) {
                 missing_tools.push("gateway");
             }

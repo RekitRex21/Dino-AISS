@@ -1,7 +1,7 @@
 //! Prompt Injection Chain Detector
-//! 
+//!
 //! Priority: MEDIUM
-//! 
+//!
 //! Philosophy: Prompt injection alone is NOT a vulnerability. We only flag
 //! chains that lead to actual bypass (injection -> tool -> exfil)
 //!
@@ -28,16 +28,16 @@ impl Scanner for PromptInjectionScanner {
 
     fn scan(&self, config: &OpenClawConfig) -> Vec<Finding> {
         let mut findings = Vec::new();
-        
+
         // NOTE: This is a configuration-based scanner. True prompt injection
         // detection would require runtime analysis. Here we detect configurations
         // that make injection more dangerous.
-        
+
         // Check: Sandbox disabled + web tools enabled = injection more dangerous
         if config.sandbox.mode.as_deref() == Some("off") {
-            let has_web_tools = config.tools.web_fetch_ssrf_policy.is_some() 
+            let has_web_tools = config.tools.web_fetch_ssrf_policy.is_some()
                 || config.tools.web_search_ssrf_policy.is_some();
-            
+
             if has_web_tools {
                 findings.push(Finding::new(
                     "injection.sandbox_off_plus_web",

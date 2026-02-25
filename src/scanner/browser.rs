@@ -1,7 +1,7 @@
 //! Browser Control Security Scanner
-//! 
+//!
 //! Priority: HIGH
-//! 
+//!
 //! Checks:
 //! - Profile isolation
 //! - Relay port exposure
@@ -26,12 +26,11 @@ impl Scanner for BrowserScanner {
 
     fn scan(&self, config: &OpenClawConfig) -> Vec<Finding> {
         let mut findings = Vec::new();
-        
+
         // Check for browser configuration in raw config
         if let Some(tools) = config.raw.get("tools").and_then(|v| v.as_object()) {
             // Check browser settings
             if let Some(browser) = tools.get("browser").and_then(|v| v.as_object()) {
-                
                 // Check relay binding
                 if let Some(relay) = browser.get("relay").and_then(|v| v.as_object()) {
                     if let Some(bind) = relay.get("bind").and_then(|v| v.as_str()) {

@@ -5,31 +5,31 @@
 use crate::config::OpenClawConfig;
 use crate::models::Finding;
 
-pub mod gateway;
-pub mod sandbox;
-pub mod tools;
-pub mod session;
-pub mod channels;
-pub mod credentials;
-pub mod nodes;
 pub mod browser;
+pub mod channels;
 pub mod control_plane;
+pub mod credentials;
+pub mod gateway;
 pub mod memory;
-pub mod prompt_injection;
+pub mod nodes;
 pub mod plugins;
+pub mod prompt_injection;
+pub mod sandbox;
+pub mod session;
+pub mod tools;
 
-pub use gateway::GatewayScanner;
-pub use sandbox::SandboxScanner;
-pub use tools::ToolsScanner;
-pub use session::SessionScanner;
-pub use channels::ChannelScanner;
-pub use credentials::CredentialsScanner;
-pub use nodes::NodeScanner;
 pub use browser::BrowserScanner;
+pub use channels::ChannelScanner;
 pub use control_plane::ControlPlaneScanner;
+pub use credentials::CredentialsScanner;
+pub use gateway::GatewayScanner;
 pub use memory::MemoryScanner;
-pub use prompt_injection::PromptInjectionScanner;
+pub use nodes::NodeScanner;
 pub use plugins::PluginScanner;
+pub use prompt_injection::PromptInjectionScanner;
+pub use sandbox::SandboxScanner;
+pub use session::SessionScanner;
+pub use tools::ToolsScanner;
 
 /// Get all available scanners
 pub fn get_all_scanners() -> Vec<Box<dyn Scanner>> {

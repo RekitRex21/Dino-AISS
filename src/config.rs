@@ -2,8 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 /// Gateway configuration
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -83,8 +83,8 @@ impl OpenClawConfig {
             return Err(format!("Config file not found: {}", path.display()));
         }
 
-        let content = fs::read_to_string(path)
-            .map_err(|e| format!("Failed to read config: {}", e))?;
+        let content =
+            fs::read_to_string(path).map_err(|e| format!("Failed to read config: {}", e))?;
 
         // Try JSON first, then YAML
         let data: serde_json::Value = serde_json::from_str(&content)
@@ -105,30 +105,45 @@ impl OpenClawConfig {
                 mode: gw.get("mode").and_then(|v| v.as_str()).map(String::from),
                 bind: gw.get("bind").and_then(|v| v.as_str()).map(String::from),
                 port: gw.get("port").and_then(|v| v.as_u64()).map(|p| p as u16),
-                auth_mode: gw.get("auth")
+                auth_mode: gw
+                    .get("auth")
                     .and_then(|v| v.get("mode"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                token: gw.get("auth")
+                token: gw
+                    .get("auth")
                     .and_then(|v| v.get("token"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                tailscale_funnel: gw.get("tailscale")
+                tailscale_funnel: gw
+                    .get("tailscale")
                     .and_then(|v| v.get("funnel"))
                     .and_then(|v| v.as_bool()),
-                mdns_mode: gw.get("discovery")
+                mdns_mode: gw
+                    .get("discovery")
                     .and_then(|v| v.get("mdns"))
                     .and_then(|v| v.get("mode"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                control_ui_origins: gw.get("controlUi")
+                control_ui_origins: gw
+                    .get("controlUi")
                     .and_then(|v| v.get("allowedOrigins"))
                     .and_then(|v| v.as_array())
-                    .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect()),
-                trusted_proxies: gw.get("trustedProxies")
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|v| v.as_str().map(String::from))
+                            .collect()
+                    }),
+                trusted_proxies: gw
+                    .get("trustedProxies")
                     .and_then(|v| v.as_array())
-                    .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect()),
-                http_no_auth: gw.get("http")
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|v| v.as_str().map(String::from))
+                            .collect()
+                    }),
+                http_no_auth: gw
+                    .get("http")
                     .and_then(|v| v.get("noAuth"))
                     .and_then(|v| v.as_bool()),
             };
@@ -138,36 +153,50 @@ impl OpenClawConfig {
         if let Some(tl) = data.get("tools").and_then(|v| v.as_object()) {
             config.tools = ToolsConfig {
                 profile: tl.get("profile").and_then(|v| v.as_str()).map(String::from),
-                deny: tl.get("deny")
-                    .and_then(|v| v.as_array())
-                    .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect()),
-                exec_host: tl.get("exec")
+                deny: tl.get("deny").and_then(|v| v.as_array()).map(|arr| {
+                    arr.iter()
+                        .filter_map(|v| v.as_str().map(String::from))
+                        .collect()
+                }),
+                exec_host: tl
+                    .get("exec")
                     .and_then(|v| v.get("host"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                exec_security: tl.get("exec")
+                exec_security: tl
+                    .get("exec")
                     .and_then(|v| v.get("security"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                exec_ask: tl.get("exec")
+                exec_ask: tl
+                    .get("exec")
                     .and_then(|v| v.get("ask"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                exec_safe_bins: tl.get("exec")
+                exec_safe_bins: tl
+                    .get("exec")
                     .and_then(|v| v.get("safeBins"))
                     .and_then(|v| v.as_array())
-                    .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect()),
-                elevated_enabled: tl.get("elevated")
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|v| v.as_str().map(String::from))
+                            .collect()
+                    }),
+                elevated_enabled: tl
+                    .get("elevated")
                     .and_then(|v| v.get("enabled"))
                     .and_then(|v| v.as_bool()),
-                fs_workspace_only: tl.get("fs")
+                fs_workspace_only: tl
+                    .get("fs")
                     .and_then(|v| v.get("workspaceOnly"))
                     .and_then(|v| v.as_bool()),
-                web_fetch_ssrf_policy: tl.get("webFetch")
+                web_fetch_ssrf_policy: tl
+                    .get("webFetch")
                     .and_then(|v| v.get("ssrfPolicy"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
-                web_search_ssrf_policy: tl.get("webSearch")
+                web_search_ssrf_policy: tl
+                    .get("webSearch")
                     .and_then(|v| v.get("ssrfPolicy"))
                     .and_then(|v| v.as_str())
                     .map(String::from),
@@ -180,7 +209,10 @@ impl OpenClawConfig {
                 if let Some(sb) = defaults.get("sandbox").and_then(|v| v.as_object()) {
                     config.sandbox = SandboxConfig {
                         mode: sb.get("mode").and_then(|v| v.as_str()).map(String::from),
-                        workspace_access: sb.get("workspaceAccess").and_then(|v| v.as_str()).map(String::from),
+                        workspace_access: sb
+                            .get("workspaceAccess")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
                         scope: sb.get("scope").and_then(|v| v.as_str()).map(String::from),
                     };
                 }
@@ -190,26 +222,43 @@ impl OpenClawConfig {
         // Parse session
         if let Some(sess) = data.get("session").and_then(|v| v.as_object()) {
             config.session = SessionConfig {
-                dm_scope: sess.get("dmScope").and_then(|v| v.as_str()).map(String::from),
+                dm_scope: sess
+                    .get("dmScope")
+                    .and_then(|v| v.as_str())
+                    .map(String::from),
             };
         }
 
         // Parse channels
-        let channel_names = ["telegram", "discord", "whatsapp", "slack", "imessage", "signal"];
+        let channel_names = [
+            "telegram", "discord", "whatsapp", "slack", "imessage", "signal",
+        ];
         for name in channel_names {
-            if let Some(ch) = data.get("channels")
+            if let Some(ch) = data
+                .get("channels")
                 .and_then(|v| v.get(name))
                 .and_then(|v| v.as_object())
             {
-                config.channels.insert(name.to_string(), ChannelConfig {
-                    enabled: ch.get("enabled").and_then(|v| v.as_bool()),
-                    dm_policy: ch.get("dmPolicy").and_then(|v| v.as_str()).map(String::from),
-                    group_policy: ch.get("groupPolicy").and_then(|v| v.as_str()).map(String::from),
-                    allow_from: ch.get("allowFrom")
-                        .and_then(|v| v.as_array())
-                        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect()),
-                    groups: ch.get("groups").and_then(|v| v.as_object()).cloned(),
-                });
+                config.channels.insert(
+                    name.to_string(),
+                    ChannelConfig {
+                        enabled: ch.get("enabled").and_then(|v| v.as_bool()),
+                        dm_policy: ch
+                            .get("dmPolicy")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        group_policy: ch
+                            .get("groupPolicy")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        allow_from: ch.get("allowFrom").and_then(|v| v.as_array()).map(|arr| {
+                            arr.iter()
+                                .filter_map(|v| v.as_str().map(String::from))
+                                .collect()
+                        }),
+                        groups: ch.get("groups").and_then(|v| v.as_object()).cloned(),
+                    },
+                );
             }
         }
 

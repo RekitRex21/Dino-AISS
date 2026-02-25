@@ -1,7 +1,7 @@
 //! Gateway & Auth Security Scanner
-//! 
+//!
 //! Priority: CRITICAL
-//! 
+//!
 //! Checks:
 //! - Token/password strength (minimum 32 chars for token)
 //! - Bind address exposure (loopback vs LAN vs tailnet vs public)
@@ -34,16 +34,19 @@ impl Scanner for GatewayScanner {
 
         // Check: Auth mode = none (critical)
         if gw.auth_mode.as_deref() == Some("none") {
-            findings.push(Finding::new(
-                "gateway.auth_none",
-                self.name(),
-                Severity::Critical,
-                "Gateway Authentication Disabled",
-                "Gateway auth mode is set to 'none', allowing unauthenticated access",
-                "Anyone can access your gateway without authentication",
-                "Set gateway.auth.mode to 'token' or 'password'",
-                "gateway.auth.mode",
-            ).with_cve("CVE-2026-26322"));
+            findings.push(
+                Finding::new(
+                    "gateway.auth_none",
+                    self.name(),
+                    Severity::Critical,
+                    "Gateway Authentication Disabled",
+                    "Gateway auth mode is set to 'none', allowing unauthenticated access",
+                    "Anyone can access your gateway without authentication",
+                    "Set gateway.auth.mode to 'token' or 'password'",
+                    "gateway.auth.mode",
+                )
+                .with_cve("CVE-2026-26322"),
+            );
         }
 
         // Check: Public bind (0.0.0.0) - critical
@@ -82,7 +85,10 @@ impl Scanner for GatewayScanner {
                     self.name(),
                     Severity::High,
                     "Weak Gateway Token",
-                    &format!("Gateway token is only {} characters (recommended: 32+)", token.len()),
+                    &format!(
+                        "Gateway token is only {} characters (recommended: 32+)",
+                        token.len()
+                    ),
                     "Token may be vulnerable to brute force attacks",
                     "Use a token with at least 32 random characters",
                     "gateway.auth.token",
@@ -92,16 +98,19 @@ impl Scanner for GatewayScanner {
 
         // Check: Tailscale Funnel - critical
         if gw.tailscale_funnel == Some(true) {
-            findings.push(Finding::new(
-                "gateway.tailscale_funnel",
-                self.name(),
-                Severity::Critical,
-                "Tailscale Funnel Enabled",
-                "Gateway is exposed via Tailscale Funnel, making it publicly accessible",
-                "Your gateway is exposed to the public internet via Tailscale",
-                "Disable Tailscale Funnel unless you need public access",
-                "gateway.tailscale.funnel",
-            ).with_cve("CVE-2026-26322"));
+            findings.push(
+                Finding::new(
+                    "gateway.tailscale_funnel",
+                    self.name(),
+                    Severity::Critical,
+                    "Tailscale Funnel Enabled",
+                    "Gateway is exposed via Tailscale Funnel, making it publicly accessible",
+                    "Your gateway is exposed to the public internet via Tailscale",
+                    "Disable Tailscale Funnel unless you need public access",
+                    "gateway.tailscale.funnel",
+                )
+                .with_cve("CVE-2026-26322"),
+            );
         }
 
         // Check: mDNS full mode - medium

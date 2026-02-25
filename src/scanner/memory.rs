@@ -1,7 +1,7 @@
 //! Memory & Context Security Scanner
-//! 
+//!
 //! Priority: MEDIUM
-//! 
+//!
 //! Checks:
 //! - Sensitive data in session memory
 //! - Memory backend exposure (QMD vs SQLite)
@@ -25,10 +25,9 @@ impl Scanner for MemoryScanner {
 
     fn scan(&self, config: &OpenClawConfig) -> Vec<Finding> {
         let mut findings = Vec::new();
-        
+
         // Check for memory configuration in raw config
         if let Some(memory) = config.raw.get("memory").and_then(|v| v.as_object()) {
-            
             // Check backend type
             if let Some(backend) = memory.get("backend").and_then(|v| v.as_str()) {
                 if backend == "qmd" {

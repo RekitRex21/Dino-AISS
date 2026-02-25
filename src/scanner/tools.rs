@@ -1,7 +1,7 @@
 //! Tool Policy Scanner
-//! 
+//!
 //! Priority: CRITICAL
-//! 
+//!
 //! Checks:
 //! - exec allowlist (wide = critical)
 //! - sandbox enabled (off + exec = critical)
@@ -91,29 +91,41 @@ impl Scanner for ToolsScanner {
 
         // Check: SSRF protection missing for web tools
         if tools.web_fetch_ssrf_policy.as_deref() != Some("strict") {
-            findings.push(Finding::new(
-                "tools.web_fetch_no_ssrf",
-                self.name(),
-                Severity::Medium,
-                "Web Fetch SSRF Protection Not Strict",
-                &format!("web_fetch ssrfPolicy is '{}'", tools.web_fetch_ssrf_policy.as_deref().unwrap_or("default")),
-                "May allow access to internal network resources",
-                "Set tools.webFetch.ssrfPolicy: 'strict'",
-                "tools.webFetch.ssrfPolicy",
-            ).with_cve("CVE-2026-26322"));
+            findings.push(
+                Finding::new(
+                    "tools.web_fetch_no_ssrf",
+                    self.name(),
+                    Severity::Medium,
+                    "Web Fetch SSRF Protection Not Strict",
+                    &format!(
+                        "web_fetch ssrfPolicy is '{}'",
+                        tools.web_fetch_ssrf_policy.as_deref().unwrap_or("default")
+                    ),
+                    "May allow access to internal network resources",
+                    "Set tools.webFetch.ssrfPolicy: 'strict'",
+                    "tools.webFetch.ssrfPolicy",
+                )
+                .with_cve("CVE-2026-26322"),
+            );
         }
 
         if tools.web_search_ssrf_policy.as_deref() != Some("strict") {
-            findings.push(Finding::new(
-                "tools.web_search_no_ssrf",
-                self.name(),
-                Severity::Medium,
-                "Web Search SSRF Protection Not Strict",
-                &format!("web_search ssrfPolicy is '{}'", tools.web_search_ssrf_policy.as_deref().unwrap_or("default")),
-                "May allow access to internal network resources",
-                "Set tools.webSearch.ssrfPolicy: 'strict'",
-                "tools.webSearch.ssrfPolicy",
-            ).with_cve("CVE-2026-26322"));
+            findings.push(
+                Finding::new(
+                    "tools.web_search_no_ssrf",
+                    self.name(),
+                    Severity::Medium,
+                    "Web Search SSRF Protection Not Strict",
+                    &format!(
+                        "web_search ssrfPolicy is '{}'",
+                        tools.web_search_ssrf_policy.as_deref().unwrap_or("default")
+                    ),
+                    "May allow access to internal network resources",
+                    "Set tools.webSearch.ssrfPolicy: 'strict'",
+                    "tools.webSearch.ssrfPolicy",
+                )
+                .with_cve("CVE-2026-26322"),
+            );
         }
 
         // Check: safeBins allows dangerous patterns

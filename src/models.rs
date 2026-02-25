@@ -107,11 +107,17 @@ impl ScanResult {
     }
 
     pub fn critical_count(&self) -> usize {
-        self.findings.iter().filter(|f| f.severity == Severity::Critical).count()
+        self.findings
+            .iter()
+            .filter(|f| f.severity == Severity::Critical)
+            .count()
     }
 
     pub fn high_count(&self) -> usize {
-        self.findings.iter().filter(|f| f.severity == Severity::High).count()
+        self.findings
+            .iter()
+            .filter(|f| f.severity == Severity::High)
+            .count()
     }
 }
 

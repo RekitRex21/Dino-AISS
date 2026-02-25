@@ -1,7 +1,7 @@
 //! Credentials & Secret Detector Scanner
-//! 
+//!
 //! Priority: CRITICAL
-//! 
+//!
 //! Checks:
 //! - Token exposure in config (redaction detection)
 //! - File permissions (600 on files, 700 on dirs)
@@ -26,15 +26,15 @@ impl Scanner for CredentialsScanner {
 
     fn scan(&self, config: &OpenClawConfig) -> Vec<Finding> {
         let mut findings = Vec::new();
-        
+
         // Check for token exposure in config
         if let Some(token) = &config.gateway.token {
             // Check if token looks redacted (common patterns)
-            let is_redacted = token.starts_with("REDACTED") 
+            let is_redacted = token.starts_with("REDACTED")
                 || token.starts_with("***")
                 || token == "YOUR_TOKEN_HERE"
                 || token.len() < 10;
-            
+
             if !is_redacted && token.len() < 32 {
                 findings.push(Finding::new(
                     "credentials.weak_gateway_token",
@@ -64,7 +64,7 @@ impl Scanner for CredentialsScanner {
         // Check for API keys in config (heuristic: long strings that look like keys)
         let config_str = serde_json::to_string(&config.raw).unwrap_or_default();
         let api_key_patterns = ["sk-", "api_", "apikey", "secret", "token"];
-        
+
         for pattern in api_key_patterns {
             if config_str.to_lowercase().contains(pattern) {
                 findings.push(Finding::new(
@@ -72,7 +72,10 @@ impl Scanner for CredentialsScanner {
                     self.name(),
                     Severity::High,
                     "Potential Secret Detected in Config",
-                    &format!("Found potential secret pattern '{}' in configuration", pattern),
+                    &format!(
+                        "Found potential secret pattern '{}' in configuration",
+                        pattern
+                    ),
                     "Sensitive credentials may be exposed",
                     "Review and ensure secrets are properly secured or redacted",
                     "config",

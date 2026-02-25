@@ -1,7 +1,7 @@
 //! Session & Identity Scanner
-//! 
+//!
 //! Priority: HIGH
-//! 
+//!
 //! Checks:
 //! - dmScope configuration (main vs per-channel-peer vs per-account-channel-peer)
 //! - Session key isolation gaps
@@ -30,10 +30,12 @@ impl Scanner for SessionScanner {
 
         // Check: dmScope = main (with multiple channels) - medium
         if sess.dm_scope.as_deref() == Some("main") {
-            let enabled_channels = config.channels.values()
+            let enabled_channels = config
+                .channels
+                .values()
                 .filter(|ch| ch.enabled == Some(true))
                 .count();
-            
+
             if enabled_channels > 1 {
                 findings.push(Finding::new(
                     "session.dm_scope_main_multi_channel",
