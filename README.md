@@ -1,108 +1,124 @@
-# Dino-AISS - OpenClaw Config Security Scanner
+# Dino-AISS – OpenClaw Configuration Security Scanner
 
-![Rust](https://img.shields.io/badge/Rust-1.75+-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
-![CI](https://github.com/RekitRex21/Dino-AISS/actions/workflows/ci.yml/badge.svg)
+**A lightweight, local Rust tool that helps you audit your personal OpenClaw setup for common misconfigurations and known issues.**
 
-> "We scan for real exploit chains, not theoretical configs. Localhost is by design."
+Dino-AISS scans your OpenClaw config file (usually `~/.openclaw/openclaw.json` or similar) and reports potential security weaknesses — focusing on practical risks that could affect single-user, localhost deployments.
 
-Dino-AISS is a Rust-based security scanner designed specifically for AI assistants following the OpenClaw personal assistant security model.
+> **Important:** This is **not** an official OpenClaw tool.
+> It is an independent, open-source project built by a community member to help secure personal setups.
+> **Everything runs locally on your machine — no data is sent anywhere unless you explicitly use the --email flag.**
 
-**Note**: The example scan outputs in this README are for demonstration purposes only - they do not reflect any actual configuration.
+---
 
-## Philosophy
+## Why This Tool Exists
 
-- **Personal Agent Focus**: Built for single-user deployments, not multi-tenant systems
-- **Real Exploit Chains**: We flag actual bypasses, not theoretical vulnerabilities  
-- **Localhost by Design**: Loopback bindings are expected, not vulnerabilities
-- **Prompt Injection**: Not a finding unless there's a bypass chain to tool execution
+OpenClaw is an exciting, fast-moving personal AI agent project — but like many powerful tools, it comes with real security trade-offs if configs are too permissive (e.g., exposed tools, weak auth, unsafe PATH handling).
+
+Recent disclosures (Jan–Feb 2026) have highlighted several CVEs affecting OpenClaw components, including SSRF, command injection, and sandbox escapes. Dino-AISS helps catch these patterns early so you can harden your setup before they become problems.
+
+## Key Principles
+
+- **Designed for single-user, localhost-first deployments** — the most common way people run OpenClaw at home.
+- **Prioritizes exploitable chains** over purely theoretical concerns (e.g., prompt injection is only flagged if a clear path to unauthorized tool execution exists).
+- **Localhost/loopback bindings are intentional** for personal agents — we don't flag them unless they're combined with other risky exposures.
+- **Transparency first** — all scan logic is in plain Rust code; you're encouraged to review it.
+
+---
 
 ## Installation
 
 ```bash
-# From source
+# Quick install from source (recommended)
 cargo install --git https://github.com/RekitRex21/Dino-AISS.git
 
-# Or build locally
+# Or clone and build manually
 git clone https://github.com/RekitRex21/Dino-AISS.git
 cd Dino-AISS
 cargo build --release
+
+# Then use ./target/release/dino-aiss
 ```
 
-## Usage
+---
 
-### Basic Scan
+## Basic Usage Examples
+
 ```bash
+# Standard scan (recommended starting point)
 dino-aiss --config ~/.openclaw/openclaw.json
-```
 
-### Critical Only
-```bash
+# Only show high/critical issues
 dino-aiss --config ~/.openclaw/openclaw.json --severity critical-only
+
+# Generate a nice HTML report (great for review)
+dino-aiss --config ~/.openclaw/openclaw.json --format html --output my-scan-report.html
+
+# Preview suggested fixes without applying them (dry-run mode coming soon)
+dino-aiss --config ~/.openclaw/openclaw.json --fix --dry-run
 ```
 
-### Auto-Fix Suggestions
-```bash
-dino-aiss --config ~/.openclaw/openclaw.json --fix
-```
+---
 
-### HTML Report
-```bash
-dino-aiss --config ~/.openclaw/openclaw.json --format html --output report.html
-```
+## ⚠️ Important Security & Privacy Notes
 
-### Version Check
-```bash
-dino-aiss --config ~/.openclaw/openclaw.json --check-version 2026.2.10
-```
+- **No network calls by default** — scans are 100% local. No telemetry, no phoning home.
+- **`--email` flag** — Only use this if you trust the recipient. It sends the full scan report (including config snippets and any detected secrets) via plain SMTP. **No encryption is applied.**
+  → Safer alternative: Use `--format json` or `--format html` and share manually/securely.
+- **`--fix` flag** — Suggests and can apply config changes (e.g., tightening tool allow-lists, removing risky paths). **Always review changes first!**
+  → We strongly recommend running with `--dry-run` (or manually diffing) before applying. Back up your config file first.
+- **Detected secrets** — If Dino-AISS finds API keys, tokens, etc., in your config, it will warn you — but it never logs or exfils them automatically.
 
-### Upgrade Guide
-```bash
-dino-aiss --config ~/.openclaw/openclaw.json --upgrade-guide
-```
+---
 
-### Share via Email
-```bash
-dino-aiss --config ~/.openclaw/openclaw.json --email security@example.com
-```
+## Scanners Included (12 modules)
 
-## Features
+- Gateway & Auth Checks
+- Sandbox/Container Hardening
+- Tool Policy & Allow-List Review
+- Credential/Secret Leak Detection
+- Session & Isolation Checks
+- Messaging Channel Security (Discord, Telegram, etc.)
+- Node/Browser Control Exposure
+- Memory/Context Leak Risks
+- Prompt Injection Chains (with execution path validation)
+- Plugin/Extension Vetting
+- And more...
 
-### 12 Security Scanner Modules
-- Gateway & Auth Security
-- Sandbox & Container Security
-- Tool Policy Scanner
-- Credentials & Secrets Detection
-- Session & Identity Isolation
-- Channel Security (Telegram, Discord, WhatsApp, Slack, iMessage, Signal)
-- Node Security
-- Browser Control Security
-- Control Plane Tools
-- Memory & Context Security
-- Prompt Injection Chains
-- Plugin & Extension Security
+---
 
-### CVE Knowledge Base
-- CVE-2026-26322 (SSRF)
-- CVE-2026-25593 (RCE via cliPath)
-- CVE-2026-24763 (PATH injection)
+## Known CVE References (as of Feb 2026)
 
-### Output Formats
-- Console (color-coded)
-- JSON (machine-readable)
-- Markdown (documentation)
-- HTML (shareable reports)
+These are publicly disclosed issues in OpenClaw or related components that Dino-AISS checks patterns for:
 
-## Configuration
+- **CVE-2026-26322** — SSRF in Gateway tool via outbound WebSocket (high severity)
+- **CVE-2026-25593** — Potential RCE patterns via unsafe `cliPath` handling
+- **CVE-2026-24763** — PATH injection / Docker sandbox escape via environment variables
 
-Dino-AISS reads your OpenClaw configuration file and analyzes it for security issues.
+These are real vulnerabilities reported in security blogs and NVD — Dino-AISS helps detect similar misconfigs that could expose you to them.
 
-**Note**: Cargo.lock is committed for reproducible builds.
+---
+
+## Output Formats
+
+- Color console (default)
+- JSON (for scripting/automation)
+- Markdown
+- HTML (human-readable reports)
+
+---
 
 ## License
 
-MIT License - See [LICENSE](LICENSE)
+MIT — free to use, modify, fork. See [LICENSE](LICENSE) for details.
 
-## Credits
+---
 
-Built by [RekitRex21](https://github.com/RekitRex21)
+## Questions or Concerns?
+
+Feel free to open an issue or PR. This is a community helper tool — feedback welcome!
+
+If you're worried about anything in the code, clone it and `cargo audit` / review the Rust source — it's all there.
+
+---
+
+Built with ❤️ for the OpenClaw community by [@RekitRex21](https://github.com/RekitRex21) 🦖
